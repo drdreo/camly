@@ -10,18 +10,18 @@
       ],
       "rules": {
         "@angular-eslint/directive-selector": [
-          "error",
+          "off",
           {
             "type": "attribute",
-            "prefix": "app",
+            "prefix": "",
             "style": "camelCase"
           }
         ],
         "@angular-eslint/component-selector": [
-          "error",
+          "warn",
           {
             "type": "element",
-            "prefix": "app",
+            "prefix": "",
             "style": "kebab-case"
           }
         ]

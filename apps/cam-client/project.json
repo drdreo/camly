@@ -61,12 +61,6 @@
       },
       "defaultConfiguration": "development"
     },
-    "extract-i18n": {
-      "executor": "@angular-devkit/build-angular:extract-i18n",
-      "options": {
-        "buildTarget": "cam-client:build"
-      }
-    },
     "lint": {
       "executor": "@nx/eslint:lint"
     },
