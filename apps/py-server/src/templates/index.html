@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Moist Stream</title>
+</head>
+<body>
+    <h1>CamX</h1>
+    <img src="/video_feed" width="640" height="480">
+    <br>
+    <button onclick="controlStream('pause')">Pause</button>
+    <button onclick="controlStream('resume')">Resume</button>
+
+    <script>
+        function controlStream(action) {
+            fetch(`/control?action=${action}`);
+        }
+    </script>
+</body>
+</html>
