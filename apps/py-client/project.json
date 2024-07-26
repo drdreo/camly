@@ -1,0 +1,22 @@
+{
+    "name": "py-client",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "application",
+    "prefix": "app",
+    "sourceRoot": "apps/py-client/src",
+    "tags": [],
+    "targets": {
+        "serve": {
+            "executor": "@angular-devkit/build-angular:dev-server",
+            "configurations": {
+                "production": {
+                    "buildTarget": "cam-client:build:production"
+                },
+                "development": {
+                    "buildTarget": "cam-client:build:development"
+                }
+            },
+            "defaultConfiguration": "development"
+        }
+    }
+}

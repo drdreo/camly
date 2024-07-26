@@ -13,7 +13,7 @@
         "outputPath": "dist/apps/cam-client",
         "index": "apps/cam-client/src/index.html",
         "browser": "apps/cam-client/src/main.ts",
-        "polyfills": ["zone.js"],
+        "polyfills": [],
         "tsConfig": "apps/cam-client/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
         "assets": [

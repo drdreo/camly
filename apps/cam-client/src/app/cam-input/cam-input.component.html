@@ -1,1 +1,3 @@
-<p>cam-input works!</p>
+<button (click)="startCanvasRecording()">Start</button>
+
+<img alt="Incoming frame" [src]="processedFrame | async" />

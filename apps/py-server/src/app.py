@@ -1,60 +1,55 @@
-import os
+import cv2
+import base64
 import logging
-from flask import Flask, Response, request, render_template
+import numpy as np
+from flask import Flask, render_template
+from flask_socketio import SocketIO, emit
 
-import config
-from capture import generate_frames
+app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins='*') # TODO: CORS
+logger = logging.getLogger(__name__)
 
-# Global state for streaming
-streaming = True
+@app.route('/')
+def index():
+    return ':)'
+
+@socketio.on('connect')
+def connect(sid):
+    print('Client connected:', sid)
+
+@socketio.on('disconnect')
+def disconnect():
+    print('Client disconnected:')
 
 
-def create_app(test_config=None):
-    app = Flask(__name__, instance_relative_config=True)
-    app.logger.setLevel(logging.INFO)
-    app.config.from_mapping(
-        SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
-    )
+@socketio.on('frame')
+def handle_frame(data):
+    print(f"Received data size: {len(data)} bytes")
+    print(f"Received data (hex): {data[:50]}...")  # Print first 50 bytes for inspection
 
-    if test_config is None:
-        app.logger.info("loading config.py")
-        app.config.from_object(config.Config)
-    else:
-        # load the test config if passed in
-        app.config.from_mapping(test_config)
-
-    # ensure the instance folder exists
     try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
+        logger.info('handle_frame')
+        np_data = np.frombuffer(data, dtype=np.uint8)
+        print(f"Received data (hex): {np_data[:50]}...")  # Print first 50 bytes for inspection
+        logger.info('read from buffer')
+        frame = cv2.imdecode(np_data, cv2.IMREAD_COLOR)
+        logger.info('buffer decoded into image')
 
-    @app.route('/video_feed')
-    def video_feed():
-        return Response(generate_frames(app, streaming), mimetype='multipart/x-mixed-replace; boundary=frame')
+        if frame is not None:
+            # Process frame with OpenCV
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            logger.info('image processed')
 
-    @app.route('/control')
-    def control():
-        global streaming
-        action = request.args.get('action')
-        if action == 'pause':
-            streaming = False
-        elif action == 'resume':
-            streaming = True
-        return f'Streaming is {"paused" if not streaming else "running"}'
-
-    @app.route('/')
-    def index():
-        return render_template('index.html')
-
-    app.config['STATIC_FOLDER'] = '.'
-
-    return app
-
+            # Encode processed frame and send back if needed
+            _, buffer = cv2.imencode('.jpg', gray)
+            logger.info('image encoded')
+            emit('response_frame', buffer.tobytes())
+            logger.info('response_frame sent')
+        else:
+            print('Frame is None. Data might be corrupted.')
+    except Exception as e:
+        print(f"Error processing frame: {e}")
 
 if __name__ == '__main__':
-    app = create_app()
-    port = os.getenv('PORT', 3000)
-    host = os.getenv('HOST', '0.0.0.0')
-    app.run(host=host, port=port)
+    logging.basicConfig(level=logging.INFO)
+    socketio.run(app, host='0.0.0.0', port=5000)
